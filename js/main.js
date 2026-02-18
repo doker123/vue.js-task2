@@ -1,28 +1,78 @@
-const {createApp} = Vue;
+const { createApp } = Vue;
+
+const NoteCard = {
+    props: {
+        card: {
+            type: Object,
+            required: true
+        },
+        columnId: {
+            type: Number,
+            required: true
+        }
+    },
+    emits: ['update-item', 'remove-card'],
+    methods: {
+        onItemChange(itemIndex, done) {
+            this.$emit('update-item', this.card.id, itemIndex, done);
+        },
+        onRemove() {
+            this.$emit('remove-card', this.card.id);
+        }
+    },
+    template: `
+    <div class="card">
+      <h3>{{ card.title }}</h3>
+      <ul class="items-list">
+        <li
+          v-for="(item, index) in card.items"
+          :key="index"
+          class="item"
+          :class="{ 'done': item.done }"
+        >
+          <input
+            type="checkbox"
+            v-model="item.done"
+            @change="onItemChange(index, item.done)"
+          />
+          <span>{{ item.text }}</span>
+        </li>
+      </ul>
+      <p v-if="card.completedAt" class="completed-at">
+        Выполнено: {{ card.completedAt }}
+      </p>
+      <button @click="onRemove" class="btn-remove">Удалить</button>
+    </div>
+  `
+};
+
 
 const NoteColumn = {
+    components: {
+        NoteCard
+    },
     props: {
         columnId: {
             type: Number,
-            required: true,
+            required: true
         },
         cards: {
             type: Array,
-            required: true,
+            required: true
         },
         maxCount: {
             type: Number,
             required: false,
         }
     },
-    events: ['update-item'],
+    emits: ['update-item'],
     methods: {
-        handleUpdateItem(cardId, ItemIndex, done) {
-            this.emit('update-item', cardId, ItemIndex, done);
+        handleUpdateItem(cardId, itemIndex, done) {
+            this.$emit('update-item', cardId, itemIndex, done);
         },
         handleRemoveCard(cardId) {
             const index = this.cards.findIndex(c => c.id === cardId);
-            if (index > -1) {
+            if (index !== -1) {
                 this.cards.splice(index, 1);
             }
         }
@@ -31,7 +81,14 @@ const NoteColumn = {
     <div class="note-column">
       <h2>Колонка {{ columnId }} (макс. {{ maxCount }})</h2>
       <div class="cards-list">
-        
+        <NoteCard
+          v-for="card in cards"
+          :key="card.id"
+          :card="card"
+          :columnId="columnId"
+          @update-item="handleUpdateItem"
+          @remove-card="handleRemoveCard"
+        />
       </div>
       <p
         v-if="cards.length >= maxCount"
@@ -43,14 +100,18 @@ const NoteColumn = {
   `
 };
 
+
 const App = {
+    components: {
+        NoteColumn
+    },
     data() {
         return {
 
             columns: [
-                {id: 1, max: 3, cards: []},
-                {id: 2, max: 5, cards: []},
-                {id: 3, max: Infinity, cards: []}
+                { id: 1, max: 3, cards: [] },
+                { id: 2, max: 5, cards: [] },
+                { id: 3, max: Infinity, cards: [] }
             ],
             title: '',
             items: ['', '', '', '', ''],
@@ -69,6 +130,7 @@ const App = {
                 }
             }
         },
+
         save() {
             try {
                 localStorage.setItem('notes', JSON.stringify(this.columns));
@@ -76,6 +138,7 @@ const App = {
                 console.error('Error saving to localStorage:', e);
             }
         },
+
         addCard() {
             const hasTitle = this.title.trim().length > 0;
             const filledItems = this.items
@@ -118,6 +181,8 @@ const App = {
             this.items = ['', '', '', '', ''];
             this.save();
         },
+
+
         moveToColumn(card, targetColumnId) {
             for (const column of this.columns) {
                 const index = column.cards.findIndex(c => c.id === card.id);
@@ -175,11 +240,12 @@ const App = {
             }
         },
 
+
         clearAll() {
             this.columns = [
-                {id: 1, max: 3, cards: []},
-                {id: 2, max: 5, cards: []},
-                {id: 3, max: Infinity, cards: []}
+                { id: 1, max: 3, cards: [] },
+                { id: 2, max: 5, cards: [] },
+                { id: 3, max: Infinity, cards: [] }
             ];
             this.save();
         }
@@ -191,7 +257,14 @@ const App = {
   <div class="app">
     <h1>Заметки</h1>
     <div class="columns">
-      
+      <NoteColumn
+          v-for="column in columns"
+          :key="column.id"
+          :columnId="column.id"
+          :cards="column.cards"
+          :maxCount="column.max"
+          @update-item="updateItem"
+        />
     </div>
     <button @click="clearAll" class="btn-clear">Очистить всё</button>
   </div>
