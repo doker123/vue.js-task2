@@ -1,0 +1,191 @@
+
+.app {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.app h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+
+.columns {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+.note-column {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    width: 300px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.note-column h2 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #555;
+    text-align: center;
+}
+
+.cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.card {
+    background-color: white;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.card h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #444;
+}
+
+.items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.item.done span {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.item span {
+    flex: 1;
+}
+
+.completed-at {
+    margin: 8px 0 0 0;
+    font-size: 12px;
+    color: #777;
+    text-align: right;
+}
+
+.btn-remove {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.btn-remove:hover {
+    background-color: #c82333;
+}
+
+
+.limit-warning {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #e67e22;
+    text-align: center;
+    font-weight: bold;
+}
+
+
+.add-card {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.input-title,
+.input-item {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.input-title:focus,
+.input-item:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.btn-add {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.btn-add:hover {
+    background-color: #218837;
+}
+
+
+.error-message {
+    margin-top: 10px;
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+.btn-clear {
+    display: block;
+    margin: 30px auto;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-clear:hover {
+    background-color: #545b62;
+}
+
+body.column-locked {
+    pointer-events: none;
+    opacity: 0.7;
+}
