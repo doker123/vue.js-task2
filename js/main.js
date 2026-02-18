@@ -1,13 +1,56 @@
-const { createApp } = Vue;
+const {createApp} = Vue;
+
+const NoteColumn = {
+    props: {
+        columnId: {
+            type: Number,
+            required: true,
+        },
+        cards: {
+            type: Array,
+            required: true,
+        },
+        maxCount: {
+            type: Number,
+            required: false,
+        }
+    },
+    events: ['update-item'],
+    methods: {
+        handleUpdateItem(cardId, ItemIndex, done) {
+            this.emit('update-item', cardId, ItemIndex, done);
+        },
+        handleRemoveCard(cardId) {
+            const index = this.cards.findIndex(c => c.id === cardId);
+            if (index > -1) {
+                this.cards.splice(index, 1);
+            }
+        }
+    },
+    template: `
+    <div class="note-column">
+      <h2>Колонка {{ columnId }} (макс. {{ maxCount }})</h2>
+      <div class="cards-list">
+        
+      </div>
+      <p
+        v-if="cards.length >= maxCount"
+        class="limit-warning"
+      >
+        Лимит достигнут ({{ maxCount }} карточек)
+      </p>
+    </div>
+  `
+};
 
 const App = {
     data() {
         return {
 
             columns: [
-                { id: 1, max: 3, cards: [] },
-                { id: 2, max: 5, cards: [] },
-                { id: 3, max: Infinity, cards: [] }
+                {id: 1, max: 3, cards: []},
+                {id: 2, max: 5, cards: []},
+                {id: 3, max: Infinity, cards: []}
             ],
             title: '',
             items: ['', '', '', '', ''],
@@ -134,9 +177,9 @@ const App = {
 
         clearAll() {
             this.columns = [
-                { id: 1, max: 3, cards: [] },
-                { id: 2, max: 5, cards: [] },
-                { id: 3, max: Infinity, cards: [] }
+                {id: 1, max: 3, cards: []},
+                {id: 2, max: 5, cards: []},
+                {id: 3, max: Infinity, cards: []}
             ];
             this.save();
         }
