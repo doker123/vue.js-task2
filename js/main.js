@@ -188,6 +188,7 @@ const App = {
         checkFirstColumnLock() {
             const secondColumn = this.columns.find(col => col.id === 2);
             const firstColumn = document.querySelector('.note-column[data-column-id="1"]');
+            const buttonAdd = document.querySelector('.btn-add');
 
             if (secondColumn && firstColumn) {
                 const isSecondFull = secondColumn.cards.length >= secondColumn.max;
@@ -204,9 +205,12 @@ const App = {
                 });
 
                 if (isSecondFull && hasHighProgressCard) {
-                    firstColumn.classList.add('column-locked');
+                    firstColumn.classList.add('column-locked')
+                    buttonAdd.disabled = true;
+
                 } else {
                     firstColumn.classList.remove('column-locked');
+                    buttonAdd.disabled = false;
                 }
             }
         },
