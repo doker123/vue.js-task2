@@ -1,33 +1,41 @@
 
 .app {
     font-family: Arial, sans-serif;
-    max-width: 1200px;
+    max-width: 90vw;
     margin: 0 auto;
     padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
 }
 
 .app h1 {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
+    font-size: 24px;
 }
-
 
 .columns {
     display: flex;
-    gap: 20px;
     flex-wrap: wrap;
+    gap: 20px;
     justify-content: center;
+    margin-bottom: 30px;
 }
-
 
 .note-column {
     background-color: #f9f9f9;
     border-radius: 8px;
     padding: 15px;
-    width: 300px;
-    height: 500px;
+    min-width: 280px;
+    flex: 1 1 250px;
+    min-height: 500px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+
 }
 
 .note-column h2 {
@@ -41,8 +49,10 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
+    flex-grow: 1;
 
+    padding: 0 5px;
+}
 
 .card {
     background-color: white;
@@ -50,25 +60,31 @@
     padding: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
 }
 
 .card h3 {
     margin: 0 0 10px 0;
     font-size: 16px;
     color: #444;
+    word-wrap: break-word;
 }
 
 .items-list {
     list-style: none;
     padding: 0;
     margin: 0 0 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .item {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 0;
+    padding: 4px 0;
     font-size: 14px;
     color: #666;
 }
@@ -81,17 +97,21 @@
 .item input[type="checkbox"] {
     width: 16px;
     height: 16px;
+    cursor: pointer;
 }
 
 .item span {
     flex: 1;
+    word-wrap: break-word;
+    line-height: 1.4;
 }
 
 .completed-at {
-    margin: 8px 0 0 0;
+    margin: 8px 0 0 auto;
     font-size: 12px;
     color: #777;
     text-align: right;
+    white-space: nowrap;
 }
 
 .btn-remove {
@@ -103,40 +123,44 @@
     cursor: pointer;
     font-size: 14px;
     margin-top: 8px;
+    align-self: flex-start;
 }
 
 .btn-remove:hover {
     background-color: #c82333;
 }
 
-
 .limit-warning {
-    margin-top: 10px;
+    margin: 10px 0 0;
     font-size: 12px;
     color: #e67e22;
     text-align: center;
     font-weight: bold;
+    text-transform: uppercase;
 }
 
-
 .add-card {
-    margin-top: 30px;
+    margin: 30px auto;
     padding: 20px;
     background-color: #f0f8ff;
     border-radius: 8px;
     max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .input-title,
 .input-item {
     width: 100%;
-    padding: 10px;
-    margin: 8px 0;
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .input-title:focus,
@@ -151,42 +175,183 @@
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 10px;
+    align-self: center;
+    transition: background-color 0.3s;
 }
 
 .btn-add:hover {
     background-color: #218837;
 }
 
-
 .error-message {
     margin-top: 10px;
     color: #dc3545;
     font-size: 14px;
     font-weight: bold;
+    text-align: center;
 }
-
 
 .btn-clear {
     display: block;
-    margin: 30px auto;
+    margin: 30px auto 0;
     background-color: #6c757d;
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s;
+    align-self: center;
 }
 
 .btn-clear:hover {
     background-color: #545b62;
 }
 
-body.column-locked {
+.note-column.column-locked {
     pointer-events: none;
     opacity: 0.7;
+    filter: grayscale(50%);
+}
+
+
+@media (max-width: 768px) {
+    .app {
+        padding: 15px;
+    }
+
+    .columns {
+        gap: 15px;
+    }
+
+    .note-column {
+        min-width: 260px;
+        padding: 12px;
+    }
+
+    .add-card {
+        margin: 25px auto;
+        padding: 16px;
+    }
+
+    .input-title,
+    .input-item {
+        padding: 10px;
+    }
+
+    .btn-add,
+    .btn-clear {
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app {
+        padding: 10px;
+    }
+
+    .columns {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .note-column {
+        width: 100%;
+        max-width: 400px;
+        min-width: auto;
+        margin-bottom: 15px;
+        min-height: auto;
+    }
+
+    .add-card {
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    .btn-add,
+    .btn-clear {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+@media (max-width: 360px) {
+    .app {
+        padding: 8px;
+    }
+
+    .note-column {
+        padding: 10px;
+    }
+
+    .note-column h2 {
+        font-size: 15px;
+        margin: 0 0 8px 0;
+    }
+
+    .card {
+        padding: 8px;
+    }
+
+    .card h3 {
+        font-size: 14px;
+        margin: 0 0 6px 0;
+    }
+
+    .items-list {
+        gap: 5px;
+    }
+
+    .item {
+        gap: 5px;
+        padding: 3px 0;
+        font-size: 12px;
+    }
+
+    .item input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+    }
+
+    .completed-at {
+        font-size: 10px;
+        margin: 5px 0 0 auto;
+    }
+
+    .btn-remove {
+        padding: 5px 8px;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    .limit-warning {
+        font-size: 10px;
+        margin: 6px 0 0;
+    }
+
+    .add-card {
+        margin: 12px auto;
+        padding: 10px;
+    }
+
+    .input-title,
+    .input-item {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .btn-add,
+    .btn-clear {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .error-message {
+        font-size: 12px;
+        margin-top: 6px;
+    }
 }
