@@ -11,6 +11,12 @@
     gap: 30px;
 }
 
+
+.card.priority {
+    border-left: 4px solid #ff0000;
+    background-color: #fff0f0;
+}
+
 .app h1 {
     text-align: center;
     color: #333;

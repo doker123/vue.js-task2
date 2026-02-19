@@ -124,6 +124,23 @@ const App = {
             itemCount: 5
         };
     },
+    computed: {
+        completedItemsCount() {
+            let count = 0;
+
+
+            for (const colId of [2, 3]) {
+                const column = this.columns.find(c => c.id === colId);
+                if (!column) continue;
+
+                for (const card of column.cards) {
+                    const doneItems = card.items.filter(item => item.done);
+                    count += doneItems.length;
+                }
+            }
+            return count;
+        },
+    },
     methods: {
         load() {
             const saved = localStorage.getItem('notes');
@@ -177,7 +194,7 @@ const App = {
                     text: item.trim(),
                     done: false
                 })),
-                completedAt: null
+                completedAt: null,
             };
 
             column.cards.push(card);
@@ -319,6 +336,9 @@ const App = {
     template: `
   <div class="app">
     <h1>Заметки</h1>
+    <p class="stats">
+    Выполнено пунктов во 2‑й и 3‑й колонках: <span>{{ completedItemsCount }}</span>
+</p>
     <div class="columns">
       <NoteColumn
           v-for="column in columns"
