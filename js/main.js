@@ -9,31 +9,41 @@ const NoteCard = {
         columnId: {
             type: Number,
             required: true
+        },
+        isParentLocked: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['update-item', 'remove-card'],
     methods: {
         onItemChange(itemIndex, done) {
+            if (!this.card.isPriority && this.isParentLocked) return;
             this.$emit('update-item', this.card.id, itemIndex, done);
         },
         onRemove() {
+            if (!this.card.isPriority && this.isParentLocked) return;
             this.$emit('remove-card', this.card.id);
         }
     },
     template: `
-    <div class="card">
-      <h3>{{ card.title }}</h3>
+    <div class="card" :class="{ 'priority': card.isPriority, 'card-locked': !card.isPriority && isParentLocked }">
+      <div class="card-header">
+        <h3>{{ card.title }}</h3>
+        <span v-if="card.isPriority" class="priority-badge">⚡ Приоритет</span>
+      </div>
       <ul class="items-list">
         <li
           v-for="(item, index) in card.items"
           :key="index"
           class="item"
-          :class="{ 'done': item.done }"
+          :class="{ 'done': item.done, 'item-locked': !card.isPriority && isParentLocked }"
         >
           <input
             type="checkbox"
-            v-model="item.done"
-            @change="onItemChange(index, item.done)"
+            :checked="item.done"
+            @click="!card.isPriority && isParentLocked ? $event.preventDefault() : onItemChange(index, !item.done)"
+            :disabled="!card.isPriority && isParentLocked"
           />
           <span>{{ item.text }}</span>
         </li>
@@ -41,7 +51,7 @@ const NoteCard = {
       <p v-if="card.completedAt" class="completed-at">
         Выполнено: {{ card.completedAt }}
       </p>
-      <button @click="onRemove" class="btn-remove">Удалить</button>
+      <button @click="onRemove()" class="btn-remove" :disabled="!card.isPriority && isParentLocked">Удалить</button>
     </div>
   `
 };
@@ -63,24 +73,23 @@ const NoteColumn = {
         maxCount: {
             type: Number,
             required: false,
+        },
+        hasActivePriorityCard: {
+            type: Boolean,
+            default: false
         }
     },
-    emits: ['update-item', 'save'],
+    emits: ['update-item', 'remove-card'],
     methods: {
         handleUpdateItem(cardId, itemIndex, done) {
             this.$emit('update-item', cardId, itemIndex, done);
         },
-
         handleRemoveCard(cardId) {
-            const index = this.cards.findIndex(c => c.id === cardId);
-            if (index !== -1) {
-                this.cards.splice(index, 1);
-                this.$emit('unlock-check');
-                if (this.columnId === 2) {
-                    this.$emit('slot-freed');
-                }
-            }
-        },
+            this.$emit('remove-card', {
+                cardId: cardId,
+                columnId: this.columnId
+            });
+        }
     },
     template: `
     <div class="note-column" :data-column-id="columnId">
@@ -91,6 +100,7 @@ const NoteColumn = {
           :key="card.id"
           :card="card"
           :columnId="columnId"
+          :isParentLocked="hasActivePriorityCard && !card.isPriority"
           @update-item="handleUpdateItem"
           @remove-card="handleRemoveCard"
         />
@@ -102,7 +112,7 @@ const NoteColumn = {
         Лимит достигнут ({{ maxCount }} карточек)
       </p>
     </div>
-  `
+  `,
 };
 
 
@@ -112,7 +122,6 @@ const App = {
     },
     data() {
         return {
-
             columns: [
                 { id: 1, max: 3, cards: [] },
                 { id: 2, max: 5, cards: [] },
@@ -121,14 +130,23 @@ const App = {
             title: '',
             items: ['', '', '', '', ''],
             errorMessage: '',
-            itemCount: 5
+            itemCount: 5,
+            isPriority: false
         };
     },
     computed: {
+        hasActivePriorityCard() {
+            for (const column of this.columns) {
+                for (const card of column.cards) {
+                    if (card.isPriority && column.id !== 3) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        },
         completedItemsCount() {
             let count = 0;
-
-
             for (const colId of [2, 3]) {
                 const column = this.columns.find(c => c.id === colId);
                 if (!column) continue;
@@ -142,6 +160,20 @@ const App = {
         },
     },
     methods: {
+        removeCard(payload) {
+            const { cardId, columnId } = payload;
+            const column = this.columns.find(col => col.id === columnId);
+            if (!column) return;
+
+            column.cards = column.cards.filter(card => card.id !== cardId);
+
+            this.checkFirstColumnLock();
+            this.save();
+
+            if (columnId === 2) {
+                this.onSlotFreed();
+            }
+        },
         load() {
             const saved = localStorage.getItem('notes');
             if (saved) {
@@ -195,11 +227,13 @@ const App = {
                     done: false
                 })),
                 completedAt: null,
+                isPriority: this.isPriority
             };
 
             column.cards.push(card);
             this.title = '';
             this.items = ['', '', '', '', ''];
+            this.isPriority = false;
         },
 
         checkFirstColumnLock() {
@@ -231,10 +265,6 @@ const App = {
                 }
             }
         },
-
-
-
-
         moveToColumn(card, targetColumnId) {
             for (const column of this.columns) {
                 const index = column.cards.findIndex(c => c.id === card.id);
@@ -346,18 +376,21 @@ const App = {
           :columnId="column.id"
           :cards="column.cards"
           :maxCount="column.max"
+          :hasActivePriorityCard="hasActivePriorityCard"
           @update-item="updateItem"
+          @remove-card="removeCard"
           @unlock-check="checkFirstColumnLock"
           @slot-freed="onSlotFreed"
         />
     </div>
-    <button @click="clearAll" class="btn-clear">Очистить всё</button>
+    <button @click="clearAll" class="btn-clear" :disabled="hasActivePriorityCard">Очистить всё</button>
   </div>
-  <div class="add-card">
+  <div class="add-card" :class="{ 'add-card-locked': hasActivePriorityCard }">
       <input
         v-model="title"
         placeholder="Заголовок карточки"
         class="input-title"
+        :disabled="hasActivePriorityCard"
       />
       <div v-for="n in 5" :key="n">
         <input
@@ -365,9 +398,14 @@ const App = {
           v-model="items[n - 1]"
           :placeholder="'Пункт ' + n"
           class="input-item"
+          :disabled="hasActivePriorityCard"
         />
       </div>
-      <button @click="addCard" class="btn-add">Добавить карточку</button>
+      <label class="priority-checkbox">
+        <input type="checkbox" v-model="isPriority" :disabled="hasActivePriorityCard" />
+        <span>Приоритетная карточка</span>
+      </label>
+      <button @click="addCard" class="btn-add" :disabled="hasActivePriorityCard">Добавить карточку</button>
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     </div>
 `
