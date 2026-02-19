@@ -70,16 +70,18 @@ const NoteColumn = {
         handleUpdateItem(cardId, itemIndex, done) {
             this.$emit('update-item', cardId, itemIndex, done);
         },
+
         handleRemoveCard(cardId) {
             const index = this.cards.findIndex(c => c.id === cardId);
             if (index !== -1) {
                 this.cards.splice(index, 1);
                 this.$emit('save');
+                this.$emit('unlock-check');
             }
-        }
+        },
     },
     template: `
-    <div class="note-column">
+    <div class="note-column" :data-column-id="columnId">
       <h2>Колонка {{ columnId }} (макс. {{ maxCount }})</h2>
       <div class="cards-list">
         <NoteCard
@@ -186,6 +188,34 @@ const App = {
             this.save();
         },
 
+        checkFirstColumnLock() {
+            const secondColumn = this.columns.find(col => col.id === 2);
+            const firstColumn = document.querySelector('.note-column[data-column-id="1"]');
+
+            if (secondColumn && firstColumn) {
+                const isSecondFull = secondColumn.cards.length >= secondColumn.max;
+
+                const firstColumnData = this.columns.find(col => col.id === 1);
+                const hasHighProgressCard = firstColumnData.cards.some(card => {
+                    const total = card.items.length;
+                    if (total === 0) return false;
+
+                    const done = card.items.filter(item => item.done).length;
+                    const progress = done / total;
+
+                    return progress > 0.5;
+                });
+
+                if (isSecondFull && hasHighProgressCard) {
+                    firstColumn.classList.add('column-locked');
+                } else {
+                    firstColumn.classList.remove('column-locked');
+                }
+            }
+        },
+
+
+
 
         moveToColumn(card, targetColumnId) {
             for (const column of this.columns) {
@@ -199,7 +229,6 @@ const App = {
             const target = this.columns.find(col => col.id === targetColumnId);
             if (target) {
                 target.cards.push(card);
-                document.body.classList.remove('column-locked');
                 this.save();
             } else {
                 console.warn(`Колонка с id=${targetColumnId} не найдена.`);
@@ -227,7 +256,7 @@ const App = {
                 if (secondColumn && secondColumn.cards.length < secondColumn.max) {
                     this.moveToColumn(card, 2);
                 } else {
-                    document.body.classList.add('column-locked');
+
                 }
             }
             return false;
@@ -238,6 +267,7 @@ const App = {
                 if (card && itemIndex >= 0 && itemIndex < card.items.length) {
                     card.items[itemIndex].done = done;
                     this.checkCardProgress(card, column.id);
+                    this.checkFirstColumnLock();
                     this.save();
                     return;
                 }
@@ -256,6 +286,7 @@ const App = {
     },
     mounted() {
         this.load();
+        this.checkFirstColumnLock();
     },
     template: `
   <div class="app">
@@ -269,6 +300,7 @@ const App = {
           :maxCount="column.max"
           @update-item="updateItem"
           @save="onSave"
+          @unlock-check="checkFirstColumnLock"
         />
     </div>
     <button @click="clearAll" class="btn-clear">Очистить всё</button>
