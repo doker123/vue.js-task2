@@ -181,6 +181,18 @@
     align-self: center;
     transition: background-color 0.3s;
 }
+.btn-add:disabled {
+    background-color: #6a9375;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    align-self: center;
+    transition: background-color 0.3s;
+    filter: grayscale(50%)
+}
 
 .btn-add:hover {
     background-color: #218837;
