@@ -65,7 +65,7 @@ const NoteColumn = {
             required: false,
         }
     },
-    emits: ['update-item'],
+    emits: ['update-item', 'save'],
     methods: {
         handleUpdateItem(cardId, itemIndex, done) {
             this.$emit('update-item', cardId, itemIndex, done);
@@ -74,6 +74,7 @@ const NoteColumn = {
             const index = this.cards.findIndex(c => c.id === cardId);
             if (index !== -1) {
                 this.cards.splice(index, 1);
+                this.$emit('save');
             }
         }
     },
@@ -137,6 +138,9 @@ const App = {
             } catch (e) {
                 console.error('Error saving to localStorage:', e);
             }
+        },
+        onSave() {
+            this.save();
         },
 
         addCard() {
@@ -264,6 +268,7 @@ const App = {
           :cards="column.cards"
           :maxCount="column.max"
           @update-item="updateItem"
+          @save="onSave"
         />
     </div>
     <button @click="clearAll" class="btn-clear">Очистить всё</button>
